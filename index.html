@@ -264,6 +264,10 @@
 
     <script>
         const SENHA_MESTRE = "RESULTADO_VOTACAO";
+        
+        // Objeto de áudio do som de confirmação
+        const somConfirma = new Audio('confirma-urna.mp3');
+        somConfirma.volume = 0.8; // Ajuste o volume se necessário (0.0 a 1.0)
 
         // Mapeamento dos Candidatos e Cargos
         const ministerios = [
@@ -432,7 +436,7 @@
 
             if (eBranco) {
                 votos[minAtual.id]['BRANCO'] = (votos[minAtual.id]['BRANCO'] || 0) + 1;
-                proximaEtapa();
+                tocarSomEProximaEtapa();
             } else if (numeroDigitado.length === 4) {
                 const candidato = minAtual.candidatos.find(c => c.id === numeroDigitado);
                 if (candidato) {
@@ -440,8 +444,18 @@
                 } else {
                     votos[minAtual.id]['NULO'] = (votos[minAtual.id]['NULO'] || 0) + 1;
                 }
-                proximaEtapa();
+                tocarSomEProximaEtapa();
             }
+        }
+
+        function tocarSomEProximaEtapa() {
+            // Reinicia o áudio caso o usuário vote rapidamente e o anterior ainda esteja tocando
+            somConfirma.currentTime = 0;
+            somConfirma.play().catch(e => {
+                console.log("Erro ao reproduzir áudio (interação do usuário necessária):", e);
+            });
+
+            proximaEtapa();
         }
 
         function proximaEtapa() {
