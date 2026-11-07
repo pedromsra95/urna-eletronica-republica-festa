@@ -4,13 +4,269 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Urna Eletrônica - Eleição dos Ministérios 🗳️</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; }
+        body {
+            background-color: #1e293b;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 15px;
+        }
+
+        .urna-container {
+            background-color: #d1d5db;
+            border-radius: 12px;
+            padding: 25px;
+            width: 100%;
+            max-width: 850px;
+            box-shadow: 0 20px 30px rgba(0,0,0,0.5);
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 20px;
+            border: 3px solid #9ca3af;
+        }
+
+        @media (max-width: 768px) {
+            .urna-container { grid-template-columns: 1fr; }
+        }
+
+        .tela {
+            background-color: #f8fafc;
+            border: 4px solid #475569;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 360px;
+            position: relative;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .tela-header { font-size: 0.8rem; font-weight: bold; color: #475569; text-transform: uppercase; }
+        .cargo-titulo { font-size: 1.1rem; font-weight: bold; margin: 8px 0 12px 0; color: #0f172a; min-height: 2.4em; }
+        
+        .digitos-container { display: flex; gap: 8px; margin: 10px 0; }
+        .digito-box {
+            width: 35px;
+            height: 45px;
+            border: 2px solid #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: white;
+        }
+        .digito-box.pisca { animation: pisca 1s infinite; }
+
+        @keyframes pisca { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        .candidato-info { margin-top: 5px; font-size: 0.95rem; line-height: 1.3; min-height: 60px; }
+        
+        .instrucoes {
+            border-top: 2px solid #cbd5e1;
+            padding-top: 8px;
+            font-size: 0.72rem;
+            color: #64748b;
+        }
+
+        .tela-fim {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            font-size: 4rem;
+            font-weight: 900;
+            color: #000;
+            letter-spacing: 5px;
+        }
+
+        .teclado {
+            background-color: #1e293b;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.6);
+        }
+
+        .teclado-linha { display: flex; gap: 12px; }
+
+        .btn-num {
+            background-color: #0f172a;
+            color: white;
+            border: none;
+            width: 55px;
+            height: 45px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            box-shadow: 0 4px #000;
+            transition: transform 0.05s, box-shadow 0.05s;
+        }
+        .btn-num:active { transform: translateY(3px); box-shadow: 0 1px #000; }
+
+        .teclado-acoes { display: flex; gap: 10px; margin-top: 10px; width: 100%; justify-content: center; }
+
+        .btn-acao {
+            border: none;
+            padding: 12px 10px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            border-radius: 4px;
+            cursor: pointer;
+            box-shadow: 0 3px rgba(0,0,0,0.3);
+            flex: 1;
+            max-width: 90px;
+        }
+        .btn-acao:active { transform: translateY(2px); box-shadow: none; }
+        .btn-branco { background-color: #ffffff; color: #000; }
+        .btn-corrige { background-color: #f97316; color: #fff; }
+        .btn-confirma { background-color: #22c55e; color: #fff; font-size: 0.85rem; padding: 16px 10px; }
+
+        .painel-apuração {
+            grid-column: span 2;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) { .painel-apuração { grid-column: span 1; } }
+
+        .cargo-bloco-resultado { margin-bottom: 20px; }
+        .cargo-bloco-resultado h4 { background: #f1f5f9; padding: 6px 10px; border-radius: 4px; border-left: 4px solid #3b82f6; font-size: 0.95rem; }
+
+        .tabela-resultados { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 0.85rem; }
+        .tabela-resultados th, .tabela-resultados td { border-bottom: 1px solid #e2e8f0; padding: 6px 8px; text-align: left; }
+        
+        .painel-acoes {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .btn-zerar { background: #ef4444; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; }
+        .btn-ocultar { background: #64748b; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; }
+
+        .bloqueio-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+            max-width: 320px;
+        }
+
+        .senha-input {
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            outline: none;
+        }
+        .senha-input:focus { border-color: #3b82f6; }
+
+        .btn-desbloquear {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn-desbloquear:hover { background-color: #2563eb; }
+
+        .erro-senha { color: #ef4444; font-size: 0.85rem; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="urna-container">
+        <!-- TELA -->
+        <div class="tela" id="tela">
+            <div id="tela-conteudo">
+                <div class="tela-header" id="etapa-indicador">SEU VOTO VAI PARA (1/9)</div>
+                <div class="cargo-titulo" id="cargo-nome">CARGO</div>
+                <div class="digitos-container" id="digitos">
+                    <div class="digito-box pisca"></div>
+                    <div class="digito-box"></div>
+                    <div class="digito-box"></div>
+                    <div class="digito-box"></div>
+                </div>
+                <div class="candidato-info" id="info-candidato"></div>
+            </div>
+            <div class="instrucoes" id="instrucoes-rodape">
+                Aperte a tecla:<br>
+                <strong>CONFIRMA</strong> para CONFIRMAR este voto<br>
+                <strong>CORRIGE</strong> para REINICIAR este voto
+            </div>
+        </div>
+
+        <!-- TECLADO -->
+        <div class="teclado">
+            <div class="teclado-linha">
+                <button class="btn-num" onclick="digitar('1')">1</button>
+                <button class="btn-num" onclick="digitar('2')">2</button>
+                <button class="btn-num" onclick="digitar('3')">3</button>
+            </div>
+            <div class="teclado-linha">
+                <button class="btn-num" onclick="digitar('4')">4</button>
+                <button class="btn-num" onclick="digitar('5')">5</button>
+                <button class="btn-num" onclick="digitar('6')">6</button>
+            </div>
+            <div class="teclado-linha">
+                <button class="btn-num" onclick="digitar('7')">7</button>
+                <button class="btn-num" onclick="digitar('8')">8</button>
+                <button class="btn-num" onclick="digitar('9')">9</button>
+            </div>
+            <div class="teclado-linha">
+                <button class="btn-num" onclick="digitar('0')">0</button>
+            </div>
+            <div class="teclado-acoes">
+                <button class="btn-acao btn-branco" onclick="votarBranco()">Branco</button>
+                <button class="btn-acao btn-corrige" onclick="corrige()">Corrige</button>
+                <button class="btn-acao btn-confirma" onclick="confirma()">Confirma</button>
+            </div>
+        </div>
+
+        <!-- APURAÇÃO / RESULTADOS -->
+        <div class="painel-apuração">
+            <h3>📊 Parcial da Apuração Geral</h3>
+            
+            <div id="area-bloqueada" class="bloqueio-container">
+                <p style="font-size:0.9rem; color:#64748b;">Digite a senha master para liberar os resultados por ministério:</p>
+                <input type="password" id="input-senha" class="senha-input" placeholder="Digite a senha..." onkeydown="checarEnter(event)">
+                <button class="btn-desbloquear" onclick="validarSenha()">Liberar Resultado 🔓</button>
+                <span id="msg-erro" class="erro-senha">Senha incorreta!</span>
+            </div>
+
+            <div id="conteudo-placar" style="display: none;">
+                <div id="lista-resultados-cargos">
+                    <!-- Gerado via JS -->
+                </div>
+                <div class="painel-acoes">
+                    <button class="btn-ocultar" onclick="ocultarPlacar()">Bloquear Novamente 🔒</button>
+                    <button class="btn-zerar" onclick="zerarUrna()">Zerar Urna 🔄</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
-        // --- SCRIPT NO HEAD: REGISTRO IMEDIATO NO WINDOW ---
-        window.SENHA_MESTRE = "RESULTADO_VOTACAO";
-        window.STORAGE_KEY = 'urna_resenha_ministerios_v5';
+        const SENHA_MESTRE = "RESULTADO_VOTACAO";
 
-        window.ministerios = [
+        // Mapeamento dos Candidatos e Cargos
+        const ministerios = [
             {
                 id: 'alegria',
                 nome: 'Ministro(a) da Alegria e do Entretenimento',
@@ -97,165 +353,199 @@
             }
         ];
 
-        window.etapaAtual = 0;
-        window.numeroDigitado = '';
-        window.eBranco = false;
+        const STORAGE_KEY = 'urna_resenha_ministerios_v1';
+        let etapaAtual = 0;
+        let numeroDigitado = '';
+        let eBranco = false;
 
-        window.carregarVotos = function() {
-            try {
-                var salvos = JSON.parse(localStorage.getItem(window.STORAGE_KEY));
-                if (salvos && typeof salvos === 'object') return salvos;
-            } catch(e) {}
-            
-            var novo = {};
-            window.ministerios.forEach(function(m) {
-                novo[m.id] = { 'BRANCO': 0, 'NULO': 0 };
-                m.candidatos.forEach(function(c) { novo[m.id][c.id] = 0; });
-            });
-            return novo;
-        };
+        function carregarVotos() {
+            let salvos = JSON.parse(localStorage.getItem(STORAGE_KEY));
+            if (!salvos) {
+                salvos = {};
+                ministerios.forEach(m => {
+                    salvos[m.id] = { 'BRANCO': 0, 'NULO': 0 };
+                    m.candidatos.forEach(c => salvos[m.id][c.id] = 0);
+                });
+            }
+            return salvos;
+        }
 
-        window.votos = window.carregarVotos();
+        let votos = carregarVotos();
 
-        window.atualizarTela = function() {
-            var minAtual = window.ministerios[window.etapaAtual];
-            document.getElementById('etapa-indicador').innerText = 'SEU VOTO VAI PARA (' + (window.etapaAtual + 1) + '/' + window.ministerios.length + ')';
+        function atualizarTela() {
+            const minAtual = ministerios[etapaAtual];
+            document.getElementById('etapa-indicador').innerText = `SEU VOTO VAI PARA (${etapaAtual + 1}/${ministerios.length})`;
             document.getElementById('cargo-nome').innerText = minAtual.nome;
 
-            var digitosDiv = document.getElementById('digitos');
-            var infoDiv = document.getElementById('info-candidato');
+            const digitosDiv = document.getElementById('digitos');
+            const infoDiv = document.getElementById('info-candidato');
             digitosDiv.innerHTML = '';
             infoDiv.innerHTML = '';
 
-            if (window.eBranco) {
+            if (eBranco) {
                 infoDiv.innerHTML = '<h3 style="font-size:1.3rem; text-align:center; margin-top:15px; color:#0284c7;">VOTO EM BRANCO</h3>';
                 return;
             }
 
-            for (var i = 0; i < 4; i++) {
-                var box = document.createElement('div');
+            for (let i = 0; i < 4; i++) {
+                const box = document.createElement('div');
                 box.className = 'digito-box';
-                if (window.numeroDigitado[i]) {
-                    box.innerText = window.numeroDigitado[i];
-                } else if (i === window.numeroDigitado.length) {
+                if (numeroDigitado[i]) {
+                    box.innerText = numeroDigitado[i];
+                } else if (i === numeroDigitado.length) {
                     box.classList.add('pisca');
                 }
                 digitosDiv.appendChild(box);
             }
 
-            if (window.numeroDigitado.length === 4) {
-                var candidato = minAtual.candidatos.find(function(c) { return c.id === window.numeroDigitado; });
+            if (numeroDigitado.length === 4) {
+                const candidato = minAtual.candidatos.find(c => c.id === numeroDigitado);
                 if (candidato) {
-                    infoDiv.innerHTML = '<p><strong>Nome:</strong> ' + candidato.nome + '</p><p><strong>Número:</strong> ' + candidato.id + '</p>';
+                    infoDiv.innerHTML = `<p><strong>Nome:</strong> ${candidato.nome}</p><p><strong>Número:</strong> ${candidato.id}</p>`;
                 } else {
-                    infoDiv.innerHTML = '<p style="color:red; font-weight:bold;">VOTO NULO</p><p style="font-size:0.8rem; color:#64748b;">Candidato não concorrente a este ministério</p>';
+                    infoDiv.innerHTML = `<p style="color:red; font-weight:bold;">VOTO NULO</p><p style="font-size:0.8rem; color:#64748b;">Candidato não concorrente a este ministério</p>`;
                 }
             }
-        };
+        }
 
-        window.digitar = function(n) {
-            if (window.eBranco || window.numeroDigitado.length >= 4) return;
-            window.numeroDigitado += n;
-            window.atualizarTela();
-        };
+        function digitar(n) {
+            if (eBranco || numeroDigitado.length >= 4) return;
+            numeroDigitado += n;
+            atualizarTela();
+        }
 
-        window.votarBranco = function() {
-            if (window.numeroDigitado === '') {
-                window.eBranco = true;
-                window.atualizarTela();
+        function votarBranco() {
+            if (numeroDigitado === '') {
+                eBranco = true;
+                atualizarTela();
             }
-        };
+        }
 
-        window.corrige = function() {
-            window.numeroDigitado = '';
-            window.eBranco = false;
-            window.atualizarTela();
-        };
+        function corrige() {
+            numeroDigitado = '';
+            eBranco = false;
+            atualizarTela();
+        }
 
-        window.confirma = function() {
-            var minAtual = window.ministerios[window.etapaAtual];
+        function confirma() {
+            const minAtual = ministerios[etapaAtual];
 
-            if (window.eBranco) {
-                window.votos[minAtual.id]['BRANCO'] = (window.votos[minAtual.id]['BRANCO'] || 0) + 1;
-                window.proximaEtapa();
-            } else if (window.numeroDigitado.length === 4) {
-                var candidato = minAtual.candidatos.find(function(c) { return c.id === window.numeroDigitado; });
+            if (eBranco) {
+                votos[minAtual.id]['BRANCO'] = (votos[minAtual.id]['BRANCO'] || 0) + 1;
+                proximaEtapa();
+            } else if (numeroDigitado.length === 4) {
+                const candidato = minAtual.candidatos.find(c => c.id === numeroDigitado);
                 if (candidato) {
-                    window.votos[minAtual.id][candidato.id] = (window.votos[minAtual.id][candidato.id] || 0) + 1;
+                    votos[minAtual.id][candidato.id] = (votos[minAtual.id][candidato.id] || 0) + 1;
                 } else {
-                    window.votos[minAtual.id]['NULO'] = (window.votos[minAtual.id]['NULO'] || 0) + 1;
+                    votos[minAtual.id]['NULO'] = (votos[minAtual.id]['NULO'] || 0) + 1;
                 }
-                window.proximaEtapa();
+                proximaEtapa();
             }
-        };
+        }
 
-        window.proximaEtapa = function() {
-            localStorage.setItem(window.STORAGE_KEY, JSON.stringify(window.votos));
-            window.numeroDigitado = '';
-            window.eBranco = false;
+        function proximaEtapa() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(votos));
+            numeroDigitado = '';
+            eBranco = false;
 
-            if (window.etapaAtual + 1 < window.ministerios.length) {
-                window.etapaAtual++;
-                window.atualizarTela();
+            if (etapaAtual + 1 < ministerios.length) {
+                etapaAtual++;
+                atualizarTela();
             } else {
-                var fimOverlay = document.getElementById('tela-fim');
-                fimOverlay.style.display = 'flex';
+                // Tela de FIM ao terminar todos os ministérios
+                document.getElementById('tela-conteudo').style.display = 'none';
+                document.getElementById('instrucoes-rodape').style.display = 'none';
+                
+                const fimDiv = document.createElement('div');
+                fimDiv.className = 'tela-fim';
+                fimDiv.id = 'bloco-fim';
+                fimDiv.innerText = 'FIM';
+                document.getElementById('tela').appendChild(fimDiv);
 
-                setTimeout(function() {
-                    fimOverlay.style.display = 'none';
-                    window.etapaAtual = 0;
-                    window.atualizarTela();
-                    window.renderizarPlacar();
+                setTimeout(() => {
+                    const blocoFim = document.getElementById('bloco-fim');
+                    if(blocoFim) blocoFim.remove();
+                    document.getElementById('tela-conteudo').style.display = 'block';
+                    document.getElementById('instrucoes-rodape').style.display = 'block';
+                    etapaAtual = 0;
+                    atualizarTela();
+                    renderizarPlacar();
                 }, 2000);
             }
-        };
+        }
 
-        window.validarSenha = function() {
-            var senhaDigitada = document.getElementById('input-senha').value;
-            var erroMsg = document.getElementById('msg-erro');
+        /* --- LÓGICA DE SENHA E EXIBIÇÃO DA APURAÇÃO --- */
+        function validarSenha() {
+            const senhaDigitada = document.getElementById('input-senha').value;
+            const erroMsg = document.getElementById('msg-erro');
             
-            if (senhaDigitada === window.SENHA_MESTRE) {
+            if (senhaDigitada === SENHA_MESTRE) {
                 document.getElementById('area-bloqueada').style.display = 'none';
                 document.getElementById('conteudo-placar').style.display = 'block';
                 document.getElementById('input-senha').value = '';
                 erroMsg.style.display = 'none';
-                window.renderizarPlacar();
+                renderizarPlacar();
             } else {
                 erroMsg.style.display = 'block';
             }
-        };
+        }
 
-        window.checarEnter = function(event) {
-            if (event.key === 'Enter') window.validarSenha();
-        };
+        function checarEnter(event) {
+            if (event.key === 'Enter') validarSenha();
+        }
 
-        window.ocultarPlacar = function() {
+        function ocultarPlacar() {
             document.getElementById('area-bloqueada').style.display = 'flex';
             document.getElementById('conteudo-placar').style.display = 'none';
-        };
+        }
 
-        window.renderizarPlacar = function() {
-            var container = document.getElementById('lista-resultados-cargos');
-            if (!container) return;
+        function renderizarPlacar() {
+            const container = document.getElementById('lista-resultados-cargos');
             container.innerHTML = '';
 
-            window.ministerios.forEach(function(m) {
-                var bloco = document.createElement('div');
+            ministerios.forEach(m => {
+                const bloco = document.createElement('div');
                 bloco.className = 'cargo-bloco-resultado';
                 
-                var html = '<h4>' + m.nome + '</h4>';
-                html += '<table class="tabela-resultados"><thead><tr><th>Nº</th><th>Candidato</th><th>Votos</th></tr></thead><tbody>';
+                let html = `<h4>${m.nome}</h4>`;
+                html += `<table class="tabela-resultados">
+                            <thead><tr><th>Nº</th><th>Candidato</th><th>Votos</th></tr></thead>
+                            <tbody>`;
 
-                var placarCargo = m.candidatos.map(function(c) {
-                    return {
-                        id: c.id,
-                        nome: c.nome,
-                        qtd: (window.votos[m.id] && window.votos[m.id][c.id]) ? window.votos[m.id][c.id] : 0
-                    };
-                }).sort(function(a, b) { return b.qtd - a.qtd; });
+                let placarCargo = m.candidatos.map(c => ({
+                    id: c.id,
+                    nome: c.nome,
+                    qtd: (votos[m.id] && votos[m.id][c.id]) ? votos[m.id][c.id] : 0
+                })).sort((a, b) => b.qtd - a.qtd);
 
-                placarCargo.forEach(function(item) {
-                    html += '<tr><td><strong>' + item.id + '</strong></td><td>' + item.nome + '</td><td><strong>' + item.qtd + '</strong></td></tr>';
+                placarCargo.forEach(item => {
+                    html += `<tr><td><strong>${item.id}</strong></td><td>${item.nome}</td><td><strong>${item.qtd}</strong></td></tr>`;
                 });
 
-                var brancos = (window.votos[m.
+                const brancos = (votos[m.id] && votos[m.id]['BRANCO']) || 0;
+                const nulos = (votos[m.id] && votos[m.id]['NULO']) || 0;
+
+                html += `<tr style="background:#f8fafc"><td>-</td><td>Votos em Branco</td><td>${brancos}</td></tr>`;
+                html += `<tr style="background:#f8fafc"><td>-</td><td>Votos Nulos</td><td>${nulos}</td></tr>`;
+                html += `</tbody></table>`;
+
+                bloco.innerHTML = html;
+                container.appendChild(bloco);
+            });
+        }
+
+        function zerarUrna() {
+            if(confirm("Deseja mesmo zerar TODOS os votos de todos os ministérios?")) {
+                localStorage.removeItem(STORAGE_KEY);
+                votos = carregarVotos();
+                renderizarPlacar();
+                corrige();
+            }
+        }
+
+        // Inicialização
+        atualizarTela();
+    </script>
+</body>
+</html>
