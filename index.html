@@ -66,7 +66,6 @@
 
         @keyframes pisca { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-        /* Layout do candidato com foto vertical grande ao lado */
         .candidato-corpo {
             display: flex;
             justify-content: space-between;
@@ -78,7 +77,6 @@
 
         .candidato-info { font-size: 0.95rem; line-height: 1.5; flex: 1; }
         
-        /* Padrão para Foto Vertical (Retrato 3x4) Grande */
         .foto-candidato {
             width: 110px;
             height: 145px;
@@ -87,7 +85,7 @@
             border: 2px solid #475569;
             background-color: #cbd5e1;
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-            display: none; /* Oculto até carregar ou ter candidato válido */
+            display: none;
             flex-shrink: 0;
         }
 
@@ -199,7 +197,6 @@
         .btn-corrige { background-color: #f97316; color: #fff; }
         .btn-confirma { background-color: #22c55e; color: #fff; font-size: 0.85rem; padding: 16px 10px; }
 
-        /* Barra de Apuração Discreta na base */
         .painel-apuracao-discreto {
             grid-column: span 2;
             margin-top: 5px;
@@ -223,7 +220,6 @@
         }
         .trigger-apuracao:hover { background: rgba(255, 255, 255, 0.25); color: #fff; }
 
-        /* Modal / Caixa Flutuante de Resultados */
         .modal-resultados {
             display: none;
             position: fixed;
@@ -490,6 +486,7 @@
         let numeroDigitado = '';
         let eBranco = false;
         let votando = false;
+        let emRevisao = false;
         let votosSessaoAtual = {};
 
         function carregarVotos() {
@@ -508,6 +505,7 @@
 
         function iniciarVotacao() {
             votando = true;
+            emRevisao = false;
             etapaAtual = 0;
             votosSessaoAtual = {};
             numeroDigitado = '';
@@ -532,6 +530,12 @@
             }
 
             instrucoesRodape.style.display = 'block';
+
+            if (emRevisao) {
+                mostrarTelaRevisaoConteudo();
+                return;
+            }
+
             const minAtual = ministerios[etapaAtual];
             
             conteudoTela.innerHTML = `
@@ -582,19 +586,24 @@
         }
 
         function digitar(n) {
-            if (!votando || eBranco || numeroDigitado.length >= 4) return;
+            if (!votando || emRevisao || eBranco || numeroDigitado.length >= 4) return;
             numeroDigitado += n;
             atualizarTela();
         }
 
         function votarBranco() {
-            if (!votando || numeroDigitado !== '') return;
+            if (!votando || emRevisao || numeroDigitado !== '') return;
             eBranco = true;
             atualizarTela();
         }
 
         function corrige() {
             if (!votando) return;
+            if (emRevisao) {
+                // Se estiver na tela de revisão, corrigir reinicia a votação do zero
+                iniciarVotacao();
+                return;
+            }
             numeroDigitado = '';
             eBranco = false;
             atualizarTela();
@@ -602,6 +611,12 @@
 
         function confirma() {
             if (!votando) return;
+
+            if (emRevisao) {
+                salvarVotosDefinitivos();
+                return;
+            }
+
             const minAtual = ministerios[etapaAtual];
 
             if (eBranco) {
@@ -626,11 +641,12 @@
                 etapaAtual++;
                 atualizarTela();
             } else {
-                mostrarTelaRevisao();
+                emRevisao = true;
+                atualizarTela();
             }
         }
 
-        function mostrarTelaRevisao() {
+        function mostrarTelaRevisaoConteudo() {
             const conteudoTela = document.getElementById('tela-conteudo');
             document.getElementById('instrucoes-rodape').style.display = 'none';
 
@@ -655,43 +671,37 @@
             </div>`;
 
             conteudoTela.innerHTML = htmlResumo;
-
-            window.salvarVotosDefinitivos = function() {
-                ministerios.forEach(m => {
-                    const escolha = votosSessaoAtual[m.id];
-                    if (escolha) {
-                        if (escolha.tipo === 'BRANCO') {
-                            votos[m.id]['BRANCO'] = (votos[m.id]['BRANCO'] || 0) + 1;
-                        } else if (escolha.tipo === 'NULO') {
-                            votos[m.id]['NULO'] = (votos[m.id]['NULO'] || 0) + 1;
-                        } else {
-                            votos[m.id][escolha.valor] = (votos[m.id][escolha.valor] || 0) + 1;
-                        }
-                    }
-                });
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(votos));
-
-                somConfirma.currentTime = 0;
-                somConfirma.play().catch(e => console.log("Áudio bloqueado:", e));
-
-                conteudoTela.innerHTML = `<div class="tela-inicio-fim"><h1 style="font-size: 3.5rem;">FIM</h1></div>`;
-                
-                setTimeout(() => {
-                    votando = false;
-                    renderizarPlacar();
-                    atualizarTela();
-                }, 2500);
-            };
         }
 
-        const _confirmaOriginal = confirma;
-        window.confirma = function() {
-            if (votando && etapaAtual === ministerios.length - 1 && document.querySelector('.resumo-container')) {
-                salvarVotosDefinitivos();
-            } else {
-                _confirmaOriginal();
-            }
-        };
+        function salvarVotosDefinitivos() {
+            ministerios.forEach(m => {
+                const escolha = votosSessaoAtual[m.id];
+                if (escolha) {
+                    if (escolha.tipo === 'BRANCO') {
+                        votos[m.id]['BRANCO'] = (votos[m.id]['BRANCO'] || 0) + 1;
+                    } else if (escolha.tipo === 'NULO') {
+                        votos[m.id]['NULO'] = (votos[m.id]['NULO'] || 0) + 1;
+                    } else {
+                        votos[m.id][escolha.valor] = (votos[m.id][escolha.valor] || 0) + 1;
+                    }
+                }
+            });
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(votos));
+
+            somConfirma.currentTime = 0;
+            somConfirma.play().catch(e => console.log("Áudio bloqueado:", e));
+
+            const conteudoTela = document.getElementById('tela-conteudo');
+            conteudoTela.innerHTML = `<div class="tela-inicio-fim"><h1 style="font-size: 3.5rem;">FIM</h1></div>`;
+            document.getElementById('instrucoes-rodape').style.display = 'none';
+            
+            setTimeout(() => {
+                votando = false;
+                emRevisao = false;
+                renderizarPlacar();
+                atualizarTela();
+            }, 2500);
+        }
 
         function abrirModalApuracao() {
             document.getElementById('modal-apuracao').style.display = 'flex';
