@@ -10,6 +10,7 @@
             background-color: #1e293b;
             color: #333;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
@@ -24,7 +25,7 @@
             max-width: 850px;
             box-shadow: 0 20px 30px rgba(0,0,0,0.5);
             display: grid;
-            grid-template-columns: 1.2fr 1fr;
+            grid-template-columns: 1.3fr 1fr;
             gap: 20px;
             border: 3px solid #9ca3af;
         }
@@ -41,15 +42,15 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            min-height: 380px;
+            min-height: 420px;
             position: relative;
             box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
         }
 
         .tela-header { font-size: 0.8rem; font-weight: bold; color: #475569; text-transform: uppercase; }
-        .cargo-titulo { font-size: 1.1rem; font-weight: bold; margin: 8px 0 12px 0; color: #0f172a; min-height: 2.4em; }
+        .cargo-titulo { font-size: 1.05rem; font-weight: bold; margin: 6px 0 10px 0; color: #0f172a; min-height: 2.4em; }
         
-        .digitos-container { display: flex; gap: 8px; margin: 10px 0; }
+        .digitos-container { display: flex; gap: 8px; margin: 8px 0; }
         .digito-box {
             width: 35px;
             height: 45px;
@@ -65,25 +66,29 @@
 
         @keyframes pisca { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-        .candidato-conteudo {
+        /* Layout do candidato com foto vertical grande ao lado */
+        .candidato-corpo {
             display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
             gap: 15px;
-            align-items: center;
             margin-top: 5px;
-            min-height: 90px;
+            flex: 1;
         }
-        .candidato-info { font-size: 0.95rem; line-height: 1.3; flex: 1; }
+
+        .candidato-info { font-size: 0.95rem; line-height: 1.5; flex: 1; }
         
-        /* Padrão para Foto 4x3 Centralizada */
+        /* Padrão para Foto Vertical (Retrato 3x4) Grande */
         .foto-candidato {
-            width: 80px;
-            height: 60px; /* Proporção 4x3 (80x60) */
+            width: 110px;
+            height: 145px;
             object-fit: cover;
             border-radius: 4px;
             border: 2px solid #475569;
             background-color: #cbd5e1;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
             display: none; /* Oculto até carregar ou ter candidato válido */
+            flex-shrink: 0;
         }
 
         .instrucoes {
@@ -120,13 +125,13 @@
         .btn-iniciar:active { transform: translateY(2px); box-shadow: none; }
 
         .resumo-container {
-            max-height: 230px;
+            max-height: 250px;
             overflow-y: auto;
-            font-size: 0.82rem;
+            font-size: 0.8rem;
             text-align: left;
             width: 100%;
             background: #fff;
-            padding: 10px;
+            padding: 8px;
             border: 1px solid #cbd5e1;
             border-radius: 4px;
         }
@@ -134,13 +139,13 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             border-bottom: 1px solid #f1f5f9;
             padding-bottom: 6px;
         }
         .resumo-item img {
-            width: 48px;
-            height: 36px;
+            width: 35px;
+            height: 45px;
             object-fit: cover;
             border-radius: 3px;
             border: 1px solid #94a3b8;
@@ -194,15 +199,51 @@
         .btn-corrige { background-color: #f97316; color: #fff; }
         .btn-confirma { background-color: #22c55e; color: #fff; font-size: 0.85rem; padding: 16px 10px; }
 
-        .painel-apuração {
+        /* Barra de Apuração Discreta na base */
+        .painel-apuracao-discreto {
             grid-column: span 2;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 10px;
+            margin-top: 5px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
         }
+        @media (max-width: 768px) { .painel-apuracao-discreto { grid-column: span 1; justify-content: center; } }
 
-        @media (max-width: 768px) { .painel-apuração { grid-column: span 1; } }
+        .trigger-apuracao {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            color: #cbd5e1;
+            cursor: pointer;
+            border: 1px dashed #64748b;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .trigger-apuracao:hover { background: rgba(255, 255, 255, 0.25); color: #fff; }
+
+        /* Modal / Caixa Flutuante de Resultados */
+        .modal-resultados {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            padding: 20px;
+        }
+        .modal-conteudo {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 700px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
 
         .cargo-bloco-resultado { margin-bottom: 20px; }
         .cargo-bloco-resultado h4 { background: #f1f5f9; padding: 6px 10px; border-radius: 4px; border-left: 4px solid #3b82f6; font-size: 0.95rem; }
@@ -210,8 +251,8 @@
         .tabela-resultados { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 0.85rem; }
         .tabela-resultados th, .tabela-resultados td { border-bottom: 1px solid #e2e8f0; padding: 6px 8px; text-align: left; vertical-align: middle; }
         .tabela-resultados img {
-            width: 44px;
-            height: 33px;
+            width: 32px;
+            height: 42px;
             object-fit: cover;
             border-radius: 3px;
             border: 1px solid #94a3b8;
@@ -222,18 +263,22 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 15px;
+            margin-top: 20px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 15px;
         }
 
-        .btn-zerar { background: #ef4444; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; }
-        .btn-ocultar { background: #64748b; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; }
+        .btn-zerar { background: #ef4444; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: bold; }
+        .btn-fechar-modal { background: #64748b; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: bold; }
 
         .bloqueio-container {
             display: flex;
             flex-direction: column;
             gap: 10px;
-            margin-top: 15px;
-            max-width: 320px;
+            max-width: 300px;
+            margin: 0 auto;
+            text-align: center;
+            padding: 20px;
         }
 
         .senha-input {
@@ -242,6 +287,7 @@
             border-radius: 6px;
             font-size: 0.95rem;
             outline: none;
+            width: 100%;
         }
         .senha-input:focus { border-color: #3b82f6; }
 
@@ -253,6 +299,7 @@
             border-radius: 6px;
             font-weight: bold;
             cursor: pointer;
+            width: 100%;
         }
         .btn-desbloquear:hover { background-color: #2563eb; }
 
@@ -273,7 +320,7 @@
                     <div class="digito-box"></div>
                     <div class="digito-box"></div>
                 </div>
-                <div class="candidato-conteudo">
+                <div class="candidato-corpo">
                     <div class="candidato-info" id="info-candidato"></div>
                     <img id="foto-candidato" class="foto-candidato" src="" alt="Foto do Candidato">
                 </div>
@@ -312,24 +359,34 @@
             </div>
         </div>
 
-        <!-- APURAÇÃO / RESULTADOS -->
-        <div class="painel-apuração">
-            <h3>📊 Parcial da Apuração Geral</h3>
-            
+        <!-- APURAÇÃO DISCRETA (RODAPÉ) -->
+        <div class="painel-apuracao-discreto">
+            <div class="trigger-apuracao" onclick="abrirModalApuracao()">
+                <span>🔒 Área Restrita / Apuração</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE APURAÇÃO -->
+    <div id="modal-apuracao" class="modal-resultados">
+        <div class="modal-conteudo">
             <div id="area-bloqueada" class="bloqueio-container">
-                <p style="font-size:0.9rem; color:#64748b;">Digite a senha master para liberar os resultados por ministério:</p>
+                <h3 style="font-size:1.1rem; color:#0f172a;">🔐 Painel de Apuração</h3>
+                <p style="font-size:0.85rem; color:#64748b;">Digite a senha master para liberar os resultados:</p>
                 <input type="password" id="input-senha" class="senha-input" placeholder="Digite a senha..." onkeydown="checarEnter(event)">
-                <button class="btn-desbloquear" onclick="validarSenha()">Liberar Resultado 🔓</button>
+                <button class="btn-desbloquear" onclick="validarSenha()">Liberar Resultado</button>
                 <span id="msg-erro" class="erro-senha">Senha incorreta!</span>
+                <button class="btn-fechar-modal" style="margin-top: 10px;" onclick="fecharModalApuracao()">Voltar</button>
             </div>
 
             <div id="conteudo-placar" style="display: none;">
+                <h3 style="margin-bottom: 15px; color: #0f172a;">📊 Parcial da Apuração Geral</h3>
                 <div id="lista-resultados-cargos">
                     <!-- Gerado via JS -->
                 </div>
                 <div class="painel-acoes">
-                    <button class="btn-ocultar" onclick="ocultarPlacar()">Bloquear Novamente 🔒</button>
                     <button class="btn-zerar" onclick="zerarUrna()">Zerar Urna 🔄</button>
+                    <button class="btn-fechar-modal" onclick="fecharModalApuracao()">Fechar ✖</button>
                 </div>
             </div>
         </div>
@@ -481,7 +538,7 @@
                 <div class="tela-header" id="etapa-indicador">SEU VOTO VAI PARA (${etapaAtual + 1}/${ministerios.length})</div>
                 <div class="cargo-titulo" id="cargo-nome">${minAtual.nome}</div>
                 <div class="digitos-container" id="digitos"></div>
-                <div class="candidato-conteudo">
+                <div class="candidato-corpo">
                     <div class="candidato-info" id="info-candidato"></div>
                     <img id="foto-candidato" class="foto-candidato" src="" alt="Foto do Candidato">
                 </div>
@@ -492,7 +549,7 @@
             const fotoImg = document.getElementById('foto-candidato');
 
             if (eBranco) {
-                infoDiv.innerHTML = '<h3 style="font-size:1.3rem; text-align:center; margin-top:15px; color:#0284c7;">VOTO EM BRANCO</h3>';
+                infoDiv.innerHTML = '<h3 style="font-size:1.3rem; text-align:center; margin-top:25px; color:#0284c7;">VOTO EM BRANCO</h3>';
                 fotoImg.style.display = 'none';
                 return;
             }
@@ -511,15 +568,14 @@
             if (numeroDigitado.length === 4) {
                 const candidato = minAtual.candidatos.find(c => c.id === numeroDigitado);
                 if (candidato) {
-                    infoDiv.innerHTML = `<p><strong>Nome:</strong> ${candidato.nome}</p><p><strong>Número:</strong> ${candidato.id}</p>`;
+                    infoDiv.innerHTML = `<p><strong>Nome:</strong> ${candidato.nome}</p><p style="margin-top:5px;"><strong>Número:</strong> ${candidato.id}</p>`;
                     fotoImg.src = `${candidato.nome}.jpeg`;
                     fotoImg.style.display = 'block';
-                    // Tratamento caso a imagem não exista na pasta
                     fotoImg.onerror = function() {
                         this.style.display = 'none';
                     };
                 } else {
-                    infoDiv.innerHTML = `<p style="color:red; font-weight:bold;">VOTO NULO</p><p style="font-size:0.8rem; color:#64748b;">Candidato não concorrente a este ministério</p>`;
+                    infoDiv.innerHTML = `<p style="color:red; font-weight:bold; font-size:1.1rem;">VOTO NULO</p><p style="font-size:0.8rem; color:#64748b; margin-top:5px;">Candidato não concorrente a este ministério</p>`;
                     fotoImg.style.display = 'none';
                 }
             }
@@ -595,7 +651,7 @@
             });
 
             htmlResumo += `</div>
-                <p style="font-size: 0.8rem; margin: 10px 0; color: #475569;">Pressione <strong>CONFIRMA</strong> para gravar seus votos ou <strong>CORRIGE</strong> para reiniciar.</p>
+                <p style="font-size: 0.8rem; margin: 8px 0; color: #475569;">Pressione <strong>CONFIRMA</strong> para gravar seus votos ou <strong>CORRIGE</strong> para reiniciar.</p>
             </div>`;
 
             conteudoTela.innerHTML = htmlResumo;
@@ -630,13 +686,22 @@
 
         const _confirmaOriginal = confirma;
         window.confirma = function() {
-            const minAtual = ministerios[etapaAtual];
             if (votando && etapaAtual === ministerios.length - 1 && document.querySelector('.resumo-container')) {
                 salvarVotosDefinitivos();
             } else {
                 _confirmaOriginal();
             }
         };
+
+        function abrirModalApuracao() {
+            document.getElementById('modal-apuracao').style.display = 'flex';
+        }
+
+        function fecharModalApuracao() {
+            document.getElementById('modal-apuracao').style.display = 'none';
+            document.getElementById('area-bloqueada').style.display = 'flex';
+            document.getElementById('conteudo-placar').style.display = 'none';
+        }
 
         function validarSenha() {
             const senhaDigitada = document.getElementById('input-senha').value;
@@ -657,11 +722,6 @@
             if (event.key === 'Enter') validarSenha();
         }
 
-        function ocultarPlacar() {
-            document.getElementById('area-bloqueada').style.display = 'flex';
-            document.getElementById('conteudo-placar').style.display = 'none';
-        }
-
         function renderizarPlacar() {
             const container = document.getElementById('lista-resultados-cargos');
             container.innerHTML = '';
@@ -672,7 +732,7 @@
                 
                 let html = `<h4>${m.nome}</h4>`;
                 html += `<table class="tabela-resultados">
-                            <thead><tr><th style="width: 55px;">Foto</th><th>Nº</th><th>Candidato</th><th>Votos</th></tr></thead>
+                            <thead><tr><th style="width: 42px;">Foto</th><th>Nº</th><th>Candidato</th><th>Votos</th></tr></thead>
                             <tbody>`;
 
                 let placarCargo = m.candidatos.map(c => ({
