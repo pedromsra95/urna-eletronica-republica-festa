@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Urna Eletrônica - Resenha 🗳️</title>
+    <title>Urna Eletrônica - Eleição dos Ministérios 🗳️</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; }
         body {
@@ -16,7 +16,6 @@
             padding: 15px;
         }
 
-        /* Estrutura principal da Urna */
         .urna-container {
             background-color: #d1d5db;
             border-radius: 12px;
@@ -34,7 +33,6 @@
             .urna-container { grid-template-columns: 1fr; }
         }
 
-        /* Tela da Urna */
         .tela {
             background-color: #f8fafc;
             border: 4px solid #475569;
@@ -43,15 +41,15 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            min-height: 340px;
+            min-height: 360px;
             position: relative;
             box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
         }
 
-        .tela-header { font-size: 0.85rem; font-weight: bold; color: #475569; text-transform: uppercase; margin-bottom: 10px; }
-        .cargo-titulo { font-size: 1.2rem; font-weight: bold; margin-bottom: 15px; }
+        .tela-header { font-size: 0.8rem; font-weight: bold; color: #475569; text-transform: uppercase; }
+        .cargo-titulo { font-size: 1.1rem; font-weight: bold; margin: 8px 0 12px 0; color: #0f172a; min-height: 2.4em; }
         
-        .digitos-container { display: flex; gap: 8px; margin: 15px 0; }
+        .digitos-container { display: flex; gap: 8px; margin: 10px 0; }
         .digito-box {
             width: 35px;
             height: 45px;
@@ -67,18 +65,17 @@
 
         @keyframes pisca { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-        .candidato-info { margin-top: 10px; font-size: 1rem; line-height: 1.4; }
-        .candidato-info p { margin-bottom: 4px; }
+        .candidato-info { margin-top: 5px; font-size: 0.95rem; line-height: 1.3; min-height: 60px; }
         
         .instrucoes {
             border-top: 2px solid #cbd5e1;
-            padding-top: 10px;
-            font-size: 0.75rem;
+            padding-top: 8px;
+            font-size: 0.72rem;
             color: #64748b;
         }
 
         .tela-fim {
-            display: flex;
+            display: none;
             align-items: center;
             justify-content: center;
             height: 100%;
@@ -86,9 +83,12 @@
             font-weight: 900;
             color: #000;
             letter-spacing: 5px;
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: #f8fafc;
+            border-radius: 4px;
         }
 
-        /* Teclado da Urna */
         .teclado {
             background-color: #1e293b;
             border-radius: 8px;
@@ -136,7 +136,6 @@
         .btn-corrige { background-color: #f97316; color: #fff; }
         .btn-confirma { background-color: #22c55e; color: #fff; font-size: 0.85rem; padding: 16px 10px; }
 
-        /* Painel Lateral / Placar */
         .painel-apuração {
             grid-column: span 2;
             background: white;
@@ -147,10 +146,51 @@
 
         @media (max-width: 768px) { .painel-apuração { grid-column: span 1; } }
 
-        .tabela-resultados { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
-        .tabela-resultados th, .tabela-resultados td { border-bottom: 1px solid #e2e8f0; padding: 8px; text-align: left; }
-        .tabela-resultados th { background: #f1f5f9; }
-        .btn-zerar { background: #ef4444; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; margin-top: 15px; float: right; }
+        .cargo-bloco-resultado { margin-bottom: 20px; }
+        .cargo-bloco-resultado h4 { background: #f1f5f9; padding: 6px 10px; border-radius: 4px; border-left: 4px solid #3b82f6; font-size: 0.95rem; }
+
+        .tabela-resultados { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 0.85rem; }
+        .tabela-resultados th, .tabela-resultados td { border-bottom: 1px solid #e2e8f0; padding: 6px 8px; text-align: left; }
+        
+        .painel-acoes {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .btn-zerar { background: #ef4444; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; }
+        .btn-ocultar { background: #64748b; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; }
+
+        .bloqueio-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+            max-width: 320px;
+        }
+
+        .senha-input {
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            outline: none;
+        }
+        .senha-input:focus { border-color: #3b82f6; }
+
+        .btn-desbloquear {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn-desbloquear:hover { background-color: #2563eb; }
+
+        .erro-senha { color: #ef4444; font-size: 0.85rem; display: none; }
     </style>
 </head>
 <body>
@@ -158,54 +198,102 @@
     <div class="urna-container">
         <!-- TELA -->
         <div class="tela" id="tela">
-            <div>
-                <div class="tela-header">SEU VOTO VAI PARA</div>
-                <div class="cargo-titulo">CANDIDATO(A)</div>
+            <div id="tela-conteudo">
+                <div class="tela-header" id="etapa-indicador">SEU VOTO VAI PARA (1/9)</div>
+                <div class="cargo-titulo" id="cargo-nome">CARGO</div>
                 <div class="digitos-container" id="digitos">
                     <div class="digito-box pisca"></div>
                     <div class="digito-box"></div>
                     <div class="digito-box"></div>
                     <div class="digito-box"></div>
                 </div>
-                <div class="candidato-info" id="info-candidato">
-                    <!-- Informações do candidato via JS -->
-                </div>
+                <div class="candidato-info" id="info-candidato"></div>
             </div>
-            <div class="instrucoes">
+            <div class="instrucoes" id="instrucoes-rodape">
                 Aperte a tecla:<br>
                 <strong>CONFIRMA</strong> para CONFIRMAR este voto<br>
                 <strong>CORRIGE</strong> para REINICIAR este voto
             </div>
+            <!-- TELA DE FIM (Camada absoluta) -->
+            <div class="tela-fim" id="tela-fim">FIM</div>
         </div>
 
         <!-- TECLADO -->
         <div class="teclado">
             <div class="teclado-linha">
-                <button class="btn-num" onclick="digitar('1')">1</button>
-                <button class="btn-num" onclick="digitar('2')">2</button>
-                <button class="btn-num" onclick="digitar('3')">3</button>
+                <button type="button" class="btn-num" onclick="digitar('1')">1</button>
+                <button type="button" class="btn-num" onclick="digitar('2')">2</button>
+                <button type="button" class="btn-num" onclick="digitar('3')">3</button>
             </div>
             <div class="teclado-linha">
-                <button class="btn-num" onclick="digitar('4')">4</button>
-                <button class="btn-num" onclick="digitar('5')">5</button>
-                <button class="btn-num" onclick="digitar('6')">6</button>
+                <button type="button" class="btn-num" onclick="digitar('4')">4</button>
+                <button type="button" class="btn-num" onclick="digitar('5')">5</button>
+                <button type="button" class="btn-num" onclick="digitar('6')">6</button>
             </div>
             <div class="teclado-linha">
-                <button class="btn-num" onclick="digitar('7')">7</button>
-                <button class="btn-num" onclick="digitar('8')">8</button>
-                <button class="btn-num" onclick="digitar('9')">9</button>
+                <button type="button" class="btn-num" onclick="digitar('7')">7</button>
+                <button type="button" class="btn-num" onclick="digitar('8')">8</button>
+                <button type="button" class="btn-num" onclick="digitar('9')">9</button>
             </div>
             <div class="teclado-linha">
-                <button class="btn-num" onclick="digitar('0')">0</button>
+                <button type="button" class="btn-num" onclick="digitar('0')">0</button>
             </div>
             <div class="teclado-acoes">
-                <button class="btn-acao btn-branco" onclick="votarBranco()">Branco</button>
-                <button class="btn-acao btn-corrige" onclick="corrige()">Corrige</button>
-                <button class="btn-acao btn-confirma" onclick="confirma()">Confirma</button>
+                <button type="button" class="btn-acao btn-branco" onclick="votarBranco()">Branco</button>
+                <button type="button" class="btn-acao btn-corrige" onclick="corrige()">Corrige</button>
+                <button type="button" class="btn-acao btn-confirma" onclick="confirma()">Confirma</button>
             </div>
         </div>
 
         <!-- APURAÇÃO / RESULTADOS -->
         <div class="painel-apuração">
-            <h3>📊 Parcial da Apuração</h3>
-            <table class="tabela-resultados">
+            <h3>📊 Parcial da Apuração Geral</h3>
+            
+            <div id="area-bloqueada" class="bloqueio-container">
+                <p style="font-size:0.9rem; color:#64748b;">Digite a senha master para liberar os resultados por ministério:</p>
+                <input type="password" id="input-senha" class="senha-input" placeholder="Digite a senha..." onkeydown="checarEnter(event)">
+                <button type="button" class="btn-desbloquear" onclick="validarSenha()">Liberar Resultado 🔓</button>
+                <span id="msg-erro" class="erro-senha">Senha incorreta!</span>
+            </div>
+
+            <div id="conteudo-placar" style="display: none;">
+                <div id="lista-resultados-cargos">
+                    <!-- Gerado via JS -->
+                </div>
+                <div class="painel-acoes">
+                    <button type="button" class="btn-ocultar" onclick="ocultarPlacar()">Bloquear Novamente 🔒</button>
+                    <button type="button" class="btn-zerar" onclick="zerarUrna()">Zerar Urna 🔄</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SENHA_MESTRE = "RESULTADO_VOTACAO";
+
+        const ministerios = [
+            {
+                id: 'alegria',
+                nome: 'Ministro(a) da Alegria e do Entretenimento',
+                candidatos: [
+                    { id: '3204', nome: 'Silvia Camila' },
+                    { id: '3213', nome: 'Luiz Terra' },
+                    { id: '3210', nome: 'Janine Maribondo' }
+                ]
+            },
+            {
+                id: 'fofoca',
+                nome: 'Ministro(a) do Supremo Tribunal da Fofoca',
+                candidatos: [
+                    { id: '3208', nome: 'Ana Geórgia' },
+                    { id: '3206', nome: 'Luiza Mendes' },
+                    { id: '3215', nome: 'Marcely Pimentel' }
+                ]
+            },
+            {
+                id: 'comunicacao',
+                nome: 'Ministro(a) das Comunicações e Relações Exteriores',
+                candidatos: [
+                    { id: '3213', nome: 'Luiz Terra' },
+                    { id: '3209', nome: 'Izadora Azevedo' },
+                    { id: '321
