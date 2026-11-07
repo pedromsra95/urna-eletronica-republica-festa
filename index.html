@@ -74,16 +74,44 @@
             color: #64748b;
         }
 
-        .tela-fim {
+        .tela-inicio-fim {
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100%;
-            font-size: 4rem;
-            font-weight: 900;
-            color: #000;
-            letter-spacing: 5px;
+            text-align: center;
+            gap: 15px;
         }
+        
+        .tela-inicio-fim h2 { font-size: 1.8rem; color: #0f172a; }
+        .tela-inicio-fim p { font-size: 0.9rem; color: #475569; }
+
+        .btn-iniciar {
+            background-color: #22c55e;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            box-shadow: 0 4px rgba(0,0,0,0.2);
+        }
+        .btn-iniciar:active { transform: translateY(2px); box-shadow: none; }
+
+        .resumo-container {
+            max-height: 250px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+            text-align: left;
+            width: 100%;
+            background: #fff;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+        }
+        .resumo-item { margin-bottom: 8px; border-bottom: 1px solid #f1f5f9; padding-bottom: 4px; }
 
         .teclado {
             background-color: #1e293b;
@@ -267,7 +295,7 @@
         
         // Objeto de áudio do som de confirmação
         const somConfirma = new Audio('confirma-urna.mp3');
-        somConfirma.volume = 0.8; // Ajuste o volume se necessário (0.0 a 1.0)
+        somConfirma.volume = 0.8;
 
         // Mapeamento dos Candidatos e Cargos
         const ministerios = [
@@ -361,6 +389,8 @@
         let etapaAtual = 0;
         let numeroDigitado = '';
         let eBranco = false;
+        let votando = false; // Controla se a sessão de votação está ativa
+        let votosSessaoAtual = {}; // Armazena temporariamente os votos do usuário atual
 
         function carregarVotos() {
             let salvos = JSON.parse(localStorage.getItem(STORAGE_KEY));
@@ -376,15 +406,43 @@
 
         let votos = carregarVotos();
 
+        function iniciarVotacao() {
+            votando = true;
+            etapaAtual = 0;
+            votosSessaoAtual = {};
+            numeroDigitado = '';
+            eBranco = false;
+            atualizarTela();
+        }
+
         function atualizarTela() {
+            const conteudoTela = document.getElementById('tela-conteudo');
+            const instrucoesRodape = document.getElementById('instrucoes-rodape');
+
+            if (!votando) {
+                conteudoTela.innerHTML = `
+                    <div class="tela-inicio-fim">
+                        <h2>Urna Eletrônica</h2>
+                        <p>Pronto para iniciar uma nova sessão de votos?</p>
+                        <button class="btn-iniciar" onclick="iniciarVotacao()">Iniciar Votação</button>
+                    </div>
+                `;
+                instrucoesRodape.style.display = 'none';
+                return;
+            }
+
+            instrucoesRodape.style.display = 'block';
             const minAtual = ministerios[etapaAtual];
-            document.getElementById('etapa-indicador').innerText = `SEU VOTO VAI PARA (${etapaAtual + 1}/${ministerios.length})`;
-            document.getElementById('cargo-nome').innerText = minAtual.nome;
+            
+            conteudoTela.innerHTML = `
+                <div class="tela-header" id="etapa-indicador">SEU VOTO VAI PARA (${etapaAtual + 1}/${ministerios.length})</div>
+                <div class="cargo-titulo" id="cargo-nome">${minAtual.nome}</div>
+                <div class="digitos-container" id="digitos"></div>
+                <div class="candidato-info" id="info-candidato"></div>
+            `;
 
             const digitosDiv = document.getElementById('digitos');
             const infoDiv = document.getElementById('info-candidato');
-            digitosDiv.innerHTML = '';
-            infoDiv.innerHTML = '';
 
             if (eBranco) {
                 infoDiv.innerHTML = '<h3 style="font-size:1.3rem; text-align:center; margin-top:15px; color:#0284c7;">VOTO EM BRANCO</h3>';
@@ -413,53 +471,43 @@
         }
 
         function digitar(n) {
-            if (eBranco || numeroDigitado.length >= 4) return;
+            if (!votando || eBranco || numeroDigitado.length >= 4) return;
             numeroDigitado += n;
             atualizarTela();
         }
 
         function votarBranco() {
-            if (numeroDigitado === '') {
-                eBranco = true;
-                atualizarTela();
-            }
+            if (!votando || numeroDigitado !== '') return;
+            eBranco = true;
+            atualizarTela();
         }
 
         function corrige() {
+            if (!votando) return;
             numeroDigitado = '';
             eBranco = false;
             atualizarTela();
         }
 
         function confirma() {
+            if (!votando) return;
             const minAtual = ministerios[etapaAtual];
 
             if (eBranco) {
-                votos[minAtual.id]['BRANCO'] = (votos[minAtual.id]['BRANCO'] || 0) + 1;
-                tocarSomEProximaEtapa();
+                votosSessaoAtual[minAtual.id] = { tipo: 'BRANCO', valor: 'BRANCO', nome: 'Voto em Branco' };
+                proximaEtapa();
             } else if (numeroDigitado.length === 4) {
                 const candidato = minAtual.candidatos.find(c => c.id === numeroDigitado);
                 if (candidato) {
-                    votos[minAtual.id][candidato.id] = (votos[minAtual.id][candidato.id] || 0) + 1;
+                    votosSessaoAtual[minAtual.id] = { tipo: 'CANDIDATO', valor: candidato.id, nome: `${candidato.nome} (${candidato.id})` };
                 } else {
-                    votos[minAtual.id]['NULO'] = (votos[minAtual.id]['NULO'] || 0) + 1;
+                    votosSessaoAtual[minAtual.id] = { tipo: 'NULO', valor: 'NULO', nome: `Nulo (${numeroDigitado})` };
                 }
-                tocarSomEProximaEtapa();
+                proximaEtapa();
             }
         }
 
-        function tocarSomEProximaEtapa() {
-            // Reinicia o áudio caso o usuário vote rapidamente e o anterior ainda esteja tocando
-            somConfirma.currentTime = 0;
-            somConfirma.play().catch(e => {
-                console.log("Erro ao reproduzir áudio (interação do usuário necessária):", e);
-            });
-
-            proximaEtapa();
-        }
-
         function proximaEtapa() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(votos));
             numeroDigitado = '';
             eBranco = false;
 
@@ -467,27 +515,73 @@
                 etapaAtual++;
                 atualizarTela();
             } else {
-                // Tela de FIM ao terminar todos os ministérios
-                document.getElementById('tela-conteudo').style.display = 'none';
-                document.getElementById('instrucoes-rodape').style.display = 'none';
-                
-                const fimDiv = document.createElement('div');
-                fimDiv.className = 'tela-fim';
-                fimDiv.id = 'bloco-fim';
-                fimDiv.innerText = 'FIM';
-                document.getElementById('tela').appendChild(fimDiv);
-
-                setTimeout(() => {
-                    const blocoFim = document.getElementById('bloco-fim');
-                    if(blocoFim) blocoFim.remove();
-                    document.getElementById('tela-conteudo').style.display = 'block';
-                    document.getElementById('instrucoes-rodape').style.display = 'block';
-                    etapaAtual = 0;
-                    atualizarTela();
-                    renderizarPlacar();
-                }, 2000);
+                // Tela de REVISÃO DOS VOTOS antes de salvar definitivamente
+                mostrarTelaRevisao();
             }
         }
+
+        function mostrarTelaRevisao() {
+            const conteudoTela = document.getElementById('tela-conteudo');
+            document.getElementById('instrucoes-rodape').style.display = 'none';
+
+            let htmlResumo = `<div style="text-align: center;">
+                <h3 style="margin-bottom: 8px; color: #0f172a;">Confira seus Escolhidos</h3>
+                <div class="resumo-container">`;
+
+            ministerios.forEach(m => {
+                const escolha = votosSessaoAtual[m.id];
+                htmlResumo += `<div class="resumo-item"><strong>${m.nome}:</strong> ${escolha ? escolha.nome : 'Não votado'}</div>`;
+            });
+
+            htmlResumo += `</div>
+                <p style="font-size: 0.8rem; margin: 10px 0; color: #475569;">Pressione <strong>CONFIRMA</strong> para gravar seus votos ou <strong>CORRIGE</strong> para reiniciar.</p>
+            </div>`;
+
+            conteudoTela.innerHTML = htmlResumo;
+
+            // Altera o comportamento temporário dos botões da tela de revisão
+            // Se apertar confirma aqui, salva de fato e toca o som!
+            window.salvarVotosDefinitivos = function() {
+                // Efetiva os votos na base geral
+                ministerios.forEach(m => {
+                    const escolha = votosSessaoAtual[m.id];
+                    if (escolha) {
+                        if (escolha.tipo === 'BRANCO') {
+                            votos[m.id]['BRANCO'] = (votos[m.id]['BRANCO'] || 0) + 1;
+                        } else if (escolha.tipo === 'NULO') {
+                            votos[m.id]['NULO'] = (votos[m.id]['NULO'] || 0) + 1;
+                        } else {
+                            votos[m.id][escolha.valor] = (votos[m.id][escolha.valor] || 0) + 1;
+                        }
+                    }
+                });
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(votos));
+
+                // Toca o áudio de confirmação da urna
+                somConfirma.currentTime = 0;
+                somConfirma.play().catch(e => console.log("Áudio bloqueado:", e));
+
+                // Mostra a tela de FIM tradicional
+                conteudoTela.innerHTML = `<div class="tela-inicio-fim"><h1 style="font-size: 3.5rem;">FIM</h1></div>`;
+                
+                setTimeout(() => {
+                    votando = false;
+                    renderizarPlacar();
+                    atualizarTela();
+                }, 2500);
+            };
+        }
+
+        // Sobrescreve a ação do botão confirma apenas na tela de revisão
+        const _confirmaOriginal = confirma;
+        window.confirma = function() {
+            const minAtual = ministerios[etapaAtual];
+            if (votando && etapaAtual === ministerios.length - 1 && document.querySelector('.resumo-container')) {
+                salvarVotosDefinitivos();
+            } else {
+                _confirmaOriginal();
+            }
+        };
 
         /* --- LÓGICA DE SENHA E EXIBIÇÃO DA APURAÇÃO --- */
         function validarSenha() {
