@@ -8,7 +8,7 @@
     <script>
         // --- SCRIPT NO HEAD: REGISTRO IMEDIATO NO WINDOW ---
         window.SENHA_MESTRE = "RESULTADO_VOTACAO";
-        window.STORAGE_KEY = 'urna_resenha_ministerios_v4';
+        window.STORAGE_KEY = 'urna_resenha_ministerios_v5';
 
         window.ministerios = [
             {
@@ -195,3 +195,67 @@
             window.eBranco = false;
 
             if (window.etapaAtual + 1 < window.ministerios.length) {
+                window.etapaAtual++;
+                window.atualizarTela();
+            } else {
+                var fimOverlay = document.getElementById('tela-fim');
+                fimOverlay.style.display = 'flex';
+
+                setTimeout(function() {
+                    fimOverlay.style.display = 'none';
+                    window.etapaAtual = 0;
+                    window.atualizarTela();
+                    window.renderizarPlacar();
+                }, 2000);
+            }
+        };
+
+        window.validarSenha = function() {
+            var senhaDigitada = document.getElementById('input-senha').value;
+            var erroMsg = document.getElementById('msg-erro');
+            
+            if (senhaDigitada === window.SENHA_MESTRE) {
+                document.getElementById('area-bloqueada').style.display = 'none';
+                document.getElementById('conteudo-placar').style.display = 'block';
+                document.getElementById('input-senha').value = '';
+                erroMsg.style.display = 'none';
+                window.renderizarPlacar();
+            } else {
+                erroMsg.style.display = 'block';
+            }
+        };
+
+        window.checarEnter = function(event) {
+            if (event.key === 'Enter') window.validarSenha();
+        };
+
+        window.ocultarPlacar = function() {
+            document.getElementById('area-bloqueada').style.display = 'flex';
+            document.getElementById('conteudo-placar').style.display = 'none';
+        };
+
+        window.renderizarPlacar = function() {
+            var container = document.getElementById('lista-resultados-cargos');
+            if (!container) return;
+            container.innerHTML = '';
+
+            window.ministerios.forEach(function(m) {
+                var bloco = document.createElement('div');
+                bloco.className = 'cargo-bloco-resultado';
+                
+                var html = '<h4>' + m.nome + '</h4>';
+                html += '<table class="tabela-resultados"><thead><tr><th>Nº</th><th>Candidato</th><th>Votos</th></tr></thead><tbody>';
+
+                var placarCargo = m.candidatos.map(function(c) {
+                    return {
+                        id: c.id,
+                        nome: c.nome,
+                        qtd: (window.votos[m.id] && window.votos[m.id][c.id]) ? window.votos[m.id][c.id] : 0
+                    };
+                }).sort(function(a, b) { return b.qtd - a.qtd; });
+
+                placarCargo.forEach(function(item) {
+                    html += '<tr><td><strong>' + item.id + '</strong></td><td>' + item.nome + '</td><td><strong>' + item.qtd + '</strong></td></tr>';
+                });
+
+                var brancos = (window.votos[m.
