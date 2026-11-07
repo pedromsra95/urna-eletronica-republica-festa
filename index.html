@@ -220,92 +220,11 @@
         <!-- TECLADO -->
         <div class="teclado">
             <div class="teclado-linha">
-                <button type="button" class="btn-num" onclick="window.digitar('1')">1</button>
-                <button type="button" class="btn-num" onclick="window.digitar('2')">2</button>
-                <button type="button" class="btn-num" onclick="window.digitar('3')">3</button>
+                <button type="button" class="btn-num" onclick="digitar('1')">1</button>
+                <button type="button" class="btn-num" onclick="digitar('2')">2</button>
+                <button type="button" class="btn-num" onclick="digitar('3')">3</button>
             </div>
             <div class="teclado-linha">
-                <button type="button" class="btn-num" onclick="window.digitar('4')">4</button>
-                <button type="button" class="btn-num" onclick="window.digitar('5')">5</button>
-                <button type="button" class="btn-num" onclick="window.digitar('6')">6</button>
-            </div>
-            <div class="teclado-linha">
-                <button type="button" class="btn-num" onclick="window.digitar('7')">7</button>
-                <button type="button" class="btn-num" onclick="window.digitar('8')">8</button>
-                <button type="button" class="btn-num" onclick="window.digitar('9')">9</button>
-            </div>
-            <div class="teclado-linha">
-                <button type="button" class="btn-num" onclick="window.digitar('0')">0</button>
-            </div>
-            <div class="teclado-acoes">
-                <button type="button" class="btn-acao btn-branco" onclick="window.votarBranco()">Branco</button>
-                <button type="button" class="btn-acao btn-corrige" onclick="window.corrige()">Corrige</button>
-                <button type="button" class="btn-acao btn-confirma" onclick="window.confirma()">Confirma</button>
-            </div>
-        </div>
-
-        <!-- APURAÇÃO / RESULTADOS -->
-        <div class="painel-apuração">
-            <h3>📊 Parcial da Apuração Geral</h3>
-            
-            <div id="area-bloqueada" class="bloqueio-container">
-                <p style="font-size:0.9rem; color:#64748b;">Digite a senha master para liberar os resultados por ministério:</p>
-                <input type="password" id="input-senha" class="senha-input" placeholder="Digite a senha..." onkeydown="window.checarEnter(event)">
-                <button type="button" class="btn-desbloquear" onclick="window.validarSenha()">Liberar Resultado 🔓</button>
-                <span id="msg-erro" class="erro-senha">Senha incorreta!</span>
-            </div>
-
-            <div id="conteudo-placar" style="display: none;">
-                <div id="lista-resultados-cargos"></div>
-                <div class="painel-acoes">
-                    <button type="button" class="btn-ocultar" onclick="window.ocultarPlacar()">Bloquear Novamente 🔒</button>
-                    <button type="button" class="btn-zerar" onclick="window.zerarUrna()">Zerar Urna 🔄</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        (function() {
-            const SENHA_MESTRE = "RESULTADO_VOTACAO";
-            const STORAGE_KEY = 'urna_resenha_ministerios_v2';
-
-            const ministerios = [
-                {
-                    id: 'alegria',
-                    nome: 'Ministro(a) da Alegria e do Entretenimento',
-                    candidatos: [
-                        { id: '3204', nome: 'Silvia Camila' },
-                        { id: '3213', nome: 'Luiz Terra' },
-                        { id: '3210', nome: 'Janine Maribondo' }
-                    ]
-                },
-                {
-                    id: 'fofoca',
-                    nome: 'Ministro(a) do Supremo Tribunal da Fofoca',
-                    candidatos: [
-                        { id: '3208', nome: 'Ana Geórgia' },
-                        { id: '3206', nome: 'Luiza Mendes' },
-                        { id: '3215', nome: 'Marcely Pimentel' }
-                    ]
-                },
-                {
-                    id: 'comunicacao',
-                    nome: 'Ministro(a) das Comunicações e Relações Exteriores',
-                    candidatos: [
-                        { id: '3213', nome: 'Luiz Terra' },
-                        { id: '3209', nome: 'Izadora Azevedo' },
-                        { id: '3211', nome: 'Jederson Pontes' }
-                    ]
-                },
-                {
-                    id: 'saude',
-                    nome: 'Ministro(a) da Saúde e Sobrevivência',
-                    candidatos: [
-                        { id: '3204', nome: 'Silvia Camila' },
-                        { id: '3218', nome: 'Raíssa Cunha' },
-                        { id: '3208', nome: 'Geórgia Barbosa' }
-                    ]
-                },
-                {
-                    id: 'nordestina
+                <button type="button" class="btn-num" onclick="digitar('4')">4</button>
+                <button type="button" class="btn-num" onclick="digitar('5')">5</button>
+                <button type="button" class="btn-num" onclick="digitar('6')">6
